@@ -1,0 +1,399 @@
+<!--
+	Proyecto: Busca Flete Web App / Mobile App
+	Autores:
+		Patricio GuzmÃ¡n
+		Allan Awerkin
+		Sebastian Salazar
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<script>
+	if(!localStorage.idChofer){
+		window.location = "index.html";
+	}
+	</script>
+	<meta charset="utf-8">
+	<title>Busca Flete</title>
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+	<script type="text/javascript" src="phonegap.js"></script>	
+
+	<link rel="stylesheet" href="css/jquery.mobile-1.4.2.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/lib.css" media="screen">
+	<link rel="stylesheet" type="text/css" href="css/rateit.css">
+	<link rel="stylesheet" type="text/css" href="css/bigstars.css">
+	<script src="js/jquery-1.11.0.js"></script>
+	<script src="js/jquery.rateit.js" type="text/javascript"></script>
+	<script src="js/jquery.mobile-1.4.2.min.js"></script>
+	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false"></script>
+	<script src="socket.io/socket.io.js"></script>
+	<script src="js/promap.js"></script>
+	<script src="js/appchofer.js"></script>
+<body>
+<div class="ui-loader-back"> </div>
+<!-- Page map-->
+<div data-role="page" id="map-page">
+<!-- Header -->
+	<div data-role="header" data-position="fixed" data-fullscreen="true" data-tap-toggle="false" class="" data-theme="b">
+		<div class="pacifico">BuscaFlete.cl</div>
+		<a href="#nav-panel" id="btnOpc" data-shadow="false"><img src="img/menub.png"></a>
+		<div data-role="navbar" style="margin: 0px 12px 0px 12px">
+        	<ul>
+            	<li><input type="search" name="origen" id="start" placeholder="Buscando..." value=""></li>
+        	</ul>
+    	</div><!-- /navbar -->
+	</div><!-- /header -->	
+
+<!-- Panel left -->
+	<div data-role="panel" data-display="reveal" data-theme="b" id="nav-panel">
+    <!-- panel content goes here -->
+      	<ul data-role="listview">
+			<li data-icon="back"><a href="#" data-rel="close">Cerrar</a></li>
+			<li class="consulta" name="perfil" data-icon="user"><a href="#perfil" data-transition="slide"> Mi Perfil</a></li>
+			<li class="consulta" name="vehiculo" data-icon="eye"><a href="#camiones" data-transition="slide"> Mi Vehiculo</a></li>
+			<li  name="historial" data-icon="clock"><a href="#viajes" data-transition="slide"> Historial</a></li>
+			<li data-icon="info"><a href="#acercade" data-transition="slide"> Acerca de</a></li>
+			<li class="consulta" name="cerrar" data-icon="power"><a href="#" > Cerrar sesion</a></li>
+		</ul>    
+	</div><!-- /Panel left -->
+	
+<!-- Mapa -->
+	<div role="main" class="ui-content" style="padding: 0">
+        <!-- map loads here... -->
+        <div id="map-canvas"></div>
+    </div><!-- /Mapa -->
+
+<!-- Footer -->
+	<div  id="footerMap" data-role="footer" data-position="fixed" data-fullscreen="true" data-tap-toggle="false" >
+		<!--<a href="#" id="btnEstado" class="ui-btn ui-btn-icon-left ui-icon-user">En linea</a>-->
+		<button id="btnEstado" onClick="btnEstado()" class="ui-btn ui-btn-icon-left ui-icon-power" disabled="">Fuera de linea</button>
+		<a id="finishTransport" href="#popupDialog" onClick="finFlete()" data-rel="popup" data-position-to="window" data-transition="slidedown" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-power ui-btn-icon-left ui-btn-b">Finalizar transporte</a>
+	</div><!-- /Footer -->
+
+
+
+	<div data-role="popup" id="popupSolicitud" data-overlay-theme="b" data-theme="a" data-dismissible="false" style="max-width:400px;"  data-shadow="false" data-corners="true">
+	    <div data-role="header" data-theme="a">
+	    <h1 style="margin: 0 20%">Nueva solicitud!</h1>
+	    </div>
+	    <div role="main" class="ui-content">
+	        <h3 class="ui-title">¿Deseas ver la solicitud?</h3>
+	    <p>Para aceptar solicitud debes visualizarla.</p>
+	        <a href="#solicitud-page" id="verSolicitud" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-transition="slide">Visualizar</a>
+	        <a href="#" id="cerrar" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cerrar</a>
+	    </div>
+	</div>
+
+
+	<!-- Ventana recomendacion -->
+	<div data-role="popup" id="popupDialog" data-overlay-theme="b" data-theme="a" data-dismissible="false" data-corners="false" >
+	    <div data-role="header" data-theme="a">
+	    <h4 id="myTextFin" style="margin: 0 20%">Recomendar usuario</h4>
+	    </div>
+	    <div role="main" class="ui-content">      
+	        <ul data-role="listview">
+				<li class="ui-field-contain">
+					<div id="rateit9" class="rateit bigstars" data-rateit-starwidth="32" data-rateit-starheight="32"></div>
+			    </li>
+			    <li class="ui-field-contain">
+			        <textarea data-mini="true" cols="40" rows="8" name="comentario" id="textareaRat"></textarea>
+			    </li>
+			</ul>		    
+		</div>
+		<center><a id="btnSend" class="ui-btn ui-btn-active  ui-shadow ui-btn-inline ui-btn-b" data-transition="flow">Recomendar</a>
+	    <a href="#" id="btnFin" class="ui-btn ui-shadow ui-btn-inline ui-btn-a" data-rel="back">Volver</a> </center>
+	</div>
+
+</div><!-- /Page map -->
+
+
+
+<!-- Page Options -->
+<div data-role="page" id="solicitud-page" data-title="Tu carga">	
+	<div data-role="header" data-theme="a">
+		<h1 style="margin: 0 20%">Datos de la carga</h1>
+		<a href="#page-map" data-rel="back" data-icon="arrow-l" data-iconpos="notext" data-shadow="false" data-icon-shadow="false">Volver</a>
+	</div><!-- /header -->
+	<div data-role="tabs" id="tabs" style="padding: 0px">
+		<div data-role="navbar">
+			<ul>
+					<li><a href="#info-page" data-ajax="false" class="ui-btn-active">Información</a></li>
+					<li><a href="#fotos-page" data-ajax="false">Fotos</a></li>
+			</ul>
+		</div>
+		
+		<div id="info-page" class="ui-content content-small" style="padding: 0px 8px">
+			<ul data-role="listview" data-inset="true">
+				<li class="ui-field-contain">
+					<div class="ui-block-a"><a href="#" class="ui-btn ui-shadow ui-corner-all ui-nodisc-icon ui-alt-icon ui-icon-home ui-btn-icon-notext ui-btn-inline"></a></div>
+	    			<div class="ui-block-b" style="width: 80%"><input type="text" id="direccion" data-mini="true" readonly></div>				
+			    </li>
+			    <li class="ui-field-contain">
+				    <div class="ui-block-a"><a href="#" class="ui-btn ui-shadow ui-corner-all ui-nodisc-icon ui-alt-icon ui-icon-navigation ui-btn-icon-notext ui-btn-inline"></a></div>
+		    		<div class="ui-block-b" style="width: 80%"><input type="text" id="destino" data-mini="true" readonly></div>
+			    </li>
+			    <li class="ui-field-contain">
+					<div class="ui-block-a" style="line-height: 45px">Cargar</div>
+	    			<div class="ui-block-b"><a href="#" id="cargar" class="ui-btn ui-shadow ui-corner-all ui-nodisc-icon ui-alt-icon ui-btn-icon-notext"></a></div>
+	    			<div class="ui-block-c" style="line-height: 45px;margin-left: 22px">Descargar</div>
+	    			<div class="ui-block-d"><a href="#" id="descargar" class="ui-btn ui-shadow ui-corner-all ui-nodisc-icon ui-alt-icon ui-btn-icon-notext"></a></div>      
+			    </li>
+			    <li class="ui-field-contain">
+			       	<textarea data-mini="true" cols="40" rows="8" name="informacion" id="informacion" readonly="">prueba prueba asdasdasd</textarea>
+			    </li>
+			    <li class="ui-field-contain">
+			       	<p>Distancia del viaje <b id="kms"></b> y tiempo estimado de <b id="tiempo"></b></p>
+			    </li>
+			    <li class="ui-field-contain">
+				    <div class="ui-grid-a ui-responsive">
+					    <div class="ui-block-a"><a href="#popupPrecio" data-rel="popup" data-transition="slidedown" class="ui-btn ui-shadow ui-btn-active ui-icon-star ui-btn-icon-left" data-position-to="window"><center>Ingresar oferta</center></a></div>
+					    <div class="ui-block-b"><a href="#popupMenu" data-rel="popup" data-transition="slidedown" class="ui-btn ui-shadow ui-btn-active ui-icon-bars ui-btn-icon-left" data-position-to="window"><center>Opciones</center></a></div>
+					</div>
+			       	<!--<button class="ui-btn ui-shadow ui-btn-active ui-icon-star ui-btn-icon-left">Ingresar Oferta</button>-->			     
+			       	<!--<button class="ui-btn ui-shadow ui-btn-active ui-icon-bars ui-btn-icon-left">Opciones</button>-->
+			    </li>		        
+			</ul>
+		</div><!-- /Content -->
+
+		<div id="fotos-page" class="ui-content content-small">
+			<a href="#foto0" data-rel="popup" data-position-to="window" data-transition="fade">
+				<img id="minFoto0" class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Foto BuscaFlete" width="49%" height="220px">
+			</a>
+			<a href="#foto1" data-rel="popup" data-position-to="window" data-transition="fade">
+				<img id="minFoto1" class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Foto BuscaFlete" width="49%" height="220px">
+			</a>
+			<a href="#foto2" data-rel="popup" data-position-to="window" data-transition="fade">
+				<img id="minFoto2" class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Foto BuscaFlete" width="49%" height="220px">
+			</a>
+			<a href="#foto3" data-rel="popup" data-position-to="window" data-transition="fade">
+				<img id="minFoto3" class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Foto BuscaFlete" width="49%" height="220px">
+			</a>
+			<a href="#foto4" data-rel="popup" data-position-to="window" data-transition="fade">
+				<img id="minFoto4" class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Foto BuscaFlete" width="49%" height="220px">
+			</a>
+			<a href="#foto5" data-rel="popup" data-position-to="window" data-transition="fade">
+				<img id="minFoto5" class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Foto BuscaFlete" width="49%" height="220px">
+			</a>
+
+			<div data-role="popup" id="foto0" data-overlay-theme="b" data-theme="b" data-corners="false">
+			    <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-left ui-nodisc-icon ui-alt-icon">Close</a>
+			    <img class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" width="400px" height="510px" style="max-height:612px;" alt="foto0">
+			</div>
+			<div data-role="popup" id="foto1" data-overlay-theme="b" data-theme="b" data-corners="false">
+			    <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-left ui-nodisc-icon ui-alt-icon">Close</a>
+			    <img class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" width="400px" height="510px" style="max-height:612px;" alt="foto1">
+			</div>
+			<div data-role="popup" id="foto2" data-overlay-theme="b" data-theme="b" data-corners="false">
+			    <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-left ui-nodisc-icon ui-alt-icon">Close</a>
+			    <img class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" width="400px" height="510px" style="max-height:612px;" alt="foto2">
+			</div>
+			<div data-role="popup" id="foto3" data-overlay-theme="b" data-theme="b" data-corners="false">
+			    <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-left ui-nodisc-icon ui-alt-icon">Close</a>
+			    <img class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" width="400px" height="510px" style="max-height:612px;" alt="foto3">
+			</div>
+			<div data-role="popup" id="foto4" data-overlay-theme="b" data-theme="b" data-corners="false">
+			    <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-left ui-nodisc-icon ui-alt-icon">Close</a>
+			    <img class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" width="400px" height="510px" style="max-height:612px;" alt="foto4">
+			</div>
+			<div data-role="popup" id="foto5" data-overlay-theme="b" data-theme="b" data-corners="false">
+			    <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-left ui-nodisc-icon ui-alt-icon">Close</a>
+			    <img class="popphoto" src="data:image/jpeg;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" width="400px" height="510px" style="max-height:612px;" alt="foto5">
+			</div>
+		</div><!-- /Content -->
+
+		<div data-role="popup" id="popupMenu" data-theme="a" data-overlay-theme="a">
+			<div data-role="header">
+			    <h1 style="margin: 0 20%">Seleccionar acción</h1>
+			</div>
+	        <fieldset data-role="controlgroup" data-iconpos="right" style="margin:10px">
+		        <input type="radio" name="radio-choice-w-6" id="radio-choice-w-6a" value="1" checked="checked">
+		        <label for="radio-choice-w-6a">No puedo realizar viaje.</label>
+		        <input type="radio" name="radio-choice-w-6" id="radio-choice-w-6b" value="2">
+		        <label for="radio-choice-w-6b">Fotos mal tomadas.</label>
+		        <input type="radio" name="radio-choice-w-6" id="radio-choice-w-6c" value="3">
+		        <label for="radio-choice-w-6c">Falta información de carga.</label>
+		        <input type="radio" name="radio-choice-w-6" id="radio-choice-w-6d" value="4">
+		        <label for="radio-choice-w-6d">Dirección desconocida.</label>
+		    </fieldset>
+		    <center><button type="button" id="accion" class="ui-btn ui-corner-all ui-shadow ui-btn-active ui-btn-icon-left ui-icon-arrow-u-r" style="width:90%">Enviar</button></center>
+		</div>
+
+		<div data-role="popup" id="popupPrecio" data-theme="a" class="ui-corner-all" data-overlay-theme="a">
+		    <form>
+		        <div style="padding:10px 20px;">
+		            <h3>Ingrese oferta</h3>
+		            <label for="un" class="ui-hidden-accessible">Oferta:</label>
+		            <input type="number" name="oferta" id="precio" value="" placeholder="Valor" data-theme="a">
+		            <button type="button" id="aceptar" class="ui-btn ui-corner-all ui-shadow ui-btn-active ui-btn-icon-left ui-icon-arrow-u-r">Enviar</button>
+		        </div>
+		    </form>
+		</div>
+		<div data-role="popup" id="popupOferta" data-overlay-theme="a" data-theme="a" data-dismissible="false" class="ui-corner-all">
+		    <form>
+		        <div style="padding:10px 20px;">
+		            <h4>Usuario solicitó rebaja!</h4>
+		            <label for="un" class="ui-hidden-accessible">Oferta:</label>
+		            <input type="number" name="oferta" id="oferta" value="" placeholder="Valor" data-theme="a">
+		            <button type="button" id="rebaja" class="ui-btn ui-corner-all ui-shadow ui-btn-active ui-btn-icon-left ui-icon-refresh">Enviar</button>
+		            <button type="button" id="rechaza" class="ui-btn ui-corner-all ui-shadow ui-btn-active ui-btn-icon-left ui-icon-delete">Rechazar</button>
+		        </div>
+		    </form>
+		</div>
+	</div>
+</div><!-- Page Options -->
+
+
+
+
+
+
+
+
+
+<!-- PAGE Viajes-->
+<div data-role="page" id="viajes">
+	<div data-role="header" data-theme="b">
+	<a href="#" data-rel="back" data-icon="arrow-l" data-iconpos="notext" data-shadow="false" data-icon-shadow="false">Volver</a>
+		<h1>Historial</h1>
+	</div>
+	<div data-role="content">
+		<div class="ui-corner-all custom-corners">
+			<div class="ui-bar ui-bar-a">
+			    
+				<a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-carat-r ui-btn-icon-notext"></a>
+
+			  </div>
+			  <div class="ui-body ui-body-a">
+			    <ul data-role="listview">
+			    	<li>Fecha</li>
+			    	<li>Nombre Chofer</li>
+			    	<li>Telefono</li>
+			    	<li>Patente</li>
+			    	<li>Cargas</li>
+			    	<li>Origen</li>
+			    	<li>Destino</li>
+			    	<li>Calificacion</li>
+			    	<li>Estado</li>
+
+			    </ul>
+			  </div>
+		</div>
+	</div>
+	
+</div>
+
+<!-- PAGE Camiones-->
+<div data-role="page" id="camiones" data-title="Camion" data-url="option-page" >
+	<div data-role="header" data-theme="b">
+		<h1>Datos Vehiculo</h1>
+		<a href="#page-map" data-rel="back" data-icon="arrow-l" data-iconpos="notext" data-shadow="false" data-icon-shadow="false">Volver</a>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content content-small">
+		<ul data-role="listview" data-inset="true">		    
+		    <li class="ui-field-contain">
+			    <div class="ui-grid-a">
+				    <div class="ui-block-a"><div class="ui-bar" ><img src="img/truck.png" style="margin:5px;"></div></div>
+				    <div class="ui-block-b">
+				    	<div class="ui-bar" >
+						    <h2 id="matricula">No registrado</h2>
+						    <p id="marca">Marca</p>
+						    <p>Modelo <strong id="modelo"></strong></p>
+						    <p>Capacidad <strong id="capacidad"></strong> kilos</p>
+					       	<p>Tipo <strong id="tipo">Flete general</strong></p>
+					       	<p id="padron"></p>
+				    	</div>
+				    </div>
+				</div><!-- /grid-a -->		
+			</li>
+		        <li class="ui-field-contain">
+		        	<button onclick="validarSolicitud()" class="ui-btn ui-mini ui-shadow ui-btn-active ui-icon-edit ui-btn-icon-right">Editar Datos</button>
+		        </li>
+		    </ul>
+	</div><!-- /Content -->
+</div><!-- Page Options -->
+
+<!-- PAGE Perfil-->
+<div data-role="page" id="perfil" data-title="Tu carga" data-url="option-page" >
+	<div data-role="header" data-theme="b">
+		<h1>Perfil Chofer</h1>
+		<a href="#page-map" data-rel="back" data-icon="arrow-l" data-iconpos="notext" data-shadow="false" data-icon-shadow="false">Volver</a>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content content-small">
+
+
+		<ul data-role="listview" data-inset="true">
+		    
+		    <li class="ui-field-contain">
+				<img src="img/perfil.jpg" style="margin:5px;">
+			    <input id="miRut" placeholder="Rut" data-mini="true" disabled="disabled">
+			    <input id="miCorreo" placeholder="Correo" data-mini="true" disabled="disabled">
+			    <input id="miNombre" placeholder="Nombre" data-mini="true" data-clear-btn="true">
+			    <input id="miTelefono" placeholder="Telefono" data-mini="true" data-clear-btn="true">
+		    </li>
+		        <li class="ui-field-contain">
+		        	<button onclick="validarSolicitud()" class="ui-btn ui-mini ui-shadow ui-btn-active ui-icon-edit ui-btn-icon-right">Guardar</button>
+		        </li>
+		      
+		        <li class="ui-field-contain" style="text-align:center;">
+		        
+		        <div class="ui-grid-b">
+				    <div class="ui-block-a"><div class="ui-bar" style="text-align: center; height:30px;"><h3>Viajes</h3></div></div>
+				    <div class="ui-block-b"><div class="ui-bar" style="text-align: center; height:30px;"><h3>Promedio</h3></div></div>
+				    <div class="ui-block-c"><div class="ui-bar" style="text-align: center; height:30px;"><h3>Plan</h3></div></div>
+				</div><!-- /grid-b -->
+		        <div class="ui-grid-b">
+				    <div class="ui-block-a"><div class="ui-bar" style="text-align: center;"><img src="img/std.png"></div></div>
+				    <div class="ui-block-b"><div class="ui-bar" style="text-align: center;"><img src="img/std2.png"></div></div>
+				    <div class="ui-block-c"><div class="ui-bar" style="text-align: center;"><img src="img/cal.png"></div></div>
+				</div><!-- /grid-b -->
+				<div class="ui-grid-b">
+				    <div class="ui-block-a"><div id="misViajes" class="ui-bar" style="text-align: center; height:30px;">0</div></div>
+				    <div class="ui-block-b"><div id="promedio" class="ui-bar" style="text-align: center; height:30px;">0</div></div>
+				    <div class="ui-block-c"><div id="plan" class="ui-bar" style="text-align: center; height:30px;">null</div></div>
+				</div><!-- /grid-b -->
+		        </li>
+		    </ul>
+	</div><!-- /Content -->
+</div><!-- Page Options -->
+
+<!-- PAGE Acerca-->
+<div data-role="page" id="acercade" data-title="Camion" data-url="option-page" >
+	<div data-role="header" data-theme="b">
+		<h1>Acerca de Nosotros</h1>
+		<a href="#page-map" data-rel="back" data-icon="arrow-l" data-iconpos="notext" data-shadow="false" data-icon-shadow="false">Volver</a>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content content-small">
+
+
+		<ul data-role="listview" data-inset="true">
+		    
+		    <li class="ui-field-contain">
+		    <div class="ui-grid-a">
+			    <div class="ui-block-a" style="text-align:center;"><div class="ui-bar" ><img src="img/logo.png" style="width:80%;"></div></div>
+			    <div class="ui-block-b"><div class="ui-bar" >
+			    	<h2>BuscaFlete.cl</h2>
+			    <p>Los Toros #05526 depto 405 torre 3</p>
+			    <p>+56 22 875 33 19</p>
+			    <p>+ 56 9 510 81 679</p>
+		       	<p>Santiago</p>
+		       	<p>Chile</p>
+			    </div></div>
+			</div><!-- /grid-a -->
+				
+			    
+		    </li>
+		        <li class="ui-field-contain">
+		        	<button onclick="validarSolicitud()" class="ui-btn ui-mini ui-shadow ui-btn-active ui-icon-mail ui-btn-icon-right">Contactar</button>
+		        </li>
+		    </ul>
+	</div><!-- /Content -->
+</div><!-- Page Options -->
+
+<script src="js/consultas.js"></script>
+
+</body>
+</html>

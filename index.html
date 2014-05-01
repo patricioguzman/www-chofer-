@@ -1,0 +1,129 @@
+<!--
+	Proyecto: Busca Flete Web App / Mobile App
+	Autores:
+		Patricio GuzmÃ¡n
+		Allan Awerkin
+		Sebastian Salazar
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	
+	<script>
+
+	if(localStorage.idChofer){
+		window.location = "chofer.html";
+	}
+	</script>
+	<title>Busca Flete</title>
+	<meta charset="utf-8">
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+	<script type="text/javascript" src="phonegap.js"></script>
+	<script type="text/javascript" src="cordova.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/lib.css" media="screen">
+	<link rel="stylesheet" href="css/jquery.mobile-1.4.2.min.css" />
+	<script src="js/jquery-1.11.0.js"></script>
+	<script src="js/jquery.mobile-1.4.2.min.js"></script>
+</head>
+<body>
+<div class="ui-loader-back"> </div>
+<div data-role="page" data-theme="b" class="background">
+	
+		<div data-role="content" >
+		<h1 class="pacifico2">BuscaFlete.cl</h1>
+			<p class="subtitulo">Aplicacion Exclusiva para Choferes</p>
+			
+
+		</div>
+	<div data-role="footer" data-position="fixed" data-fullscreen="true" data-tap-toggle="false">
+		<div data-role="navbar">
+        <ul>
+            <li><a href="#registro-page" data-transition="slide" data-icon="edit">Registrarme</a></li>
+            <li><a href="#login-page" data-transition="slide" data-icon="power">Iniciar Sesion</a></li>
+        </ul>
+    </div><!-- /navbar -->
+	</div><!--Footer-->
+</div>
+
+<!-- Page registro -->
+<div data-role="page" id="registro-page" data-title="Registro" data-url="identificacion" style="height: 100%">
+	<div data-role="header" data-tap-toggle="false" class="">
+		<h1>Identificacion</h1>
+		<a href="#" data-rel="back" data-icon="arrow-l" data-iconpos="notext" data-shadow="false" data-icon-shadow="false">Volver</a>
+	</div><!-- /header -->
+	<div role="main" class="ui-content content-small">
+		<button id="btn-fb" class="ui-btn">Registrar con Facebook</button>
+		<hr>
+		    <ul data-role="listview" data-inset="true">
+		    	<li class="ui-field-contain">
+		        <div class="ui-grid-a">
+				    <div class="ui-block-a" style="width: 8%;" ><img width="36px" height="36px" style="margin-top: 1em" src="img/rut.png" ></div>
+				    <div class="ui-block-b" style="width: 92%;"><div class="ui-bar " ><input type="text" name="rut" id="rg-rut" value="" data-clear-btn="true" placeholder="RUT ej : 13456789-0"></div></div>
+				</div><!-- /grid-a -->
+		        </li>
+		        <li class="ui-field-contain">
+		        <div class="ui-grid-a">
+				    <div class="ui-block-a" style="width: 8%;" ><img width="36px" height="36px" style="margin-top: 1em" src="img/mail.png" ></div>
+				    <div class="ui-block-b" style="width: 92%;"><div class="ui-bar " ><input type="text" name="correo" id="rg-correo" value="" data-clear-btn="true" placeholder="Email ej : nombre@correo.cl"></div></div>
+				</div><!-- /grid-a -->
+		        </li>
+		        <li class="ui-field-contain">
+		        <div class="ui-grid-a">
+				    <div class="ui-block-a" style="width: 8%;" ><img width="36px" height="36px" style="margin-top: 1em"  src="img/usr.png" ></div>
+				    <div class="ui-block-b" style="width: 92%;"><div class="ui-bar " ><input type="text" name="nombre" id="rg-nombre" value="" data-clear-btn="true" placeholder=" Nombre Apellido"></div></div>
+				</div><!-- /grid-a -->
+		        </li>
+		        <li class="ui-field-contain">
+		        <div class="ui-grid-a">
+				    <div class="ui-block-a" style="width: 8%;" ><img width="36px" height="36px" style="margin-top: 1em" src="img/phone.png" ></div>
+				    <div class="ui-block-b" style="width: 92%;"><div class="ui-bar"><input type="tel" name="celular" id="rg-celular" value="" data-clear-btn="true" placeholder="Telefono ej : 951081670"></div></div>
+				</div><!-- /grid-a -->
+		        </li>
+		        <li class="ui-field-contain">
+		        	<div class="ui-grid-a">
+				    <div class="ui-block-a" style="width: 8%;" ><img width="36px" height="36px" style="margin-top: 1em" src="img/pass.png" ></div>
+				    <div class="ui-block-b" style="width: 92%;"><div class="ui-bar " ><input type="password" name="pass" id="rg-pass" value="" data-clear-btn="true" placeholder="Contraseña"></div></div>
+				</div><!-- /grid-a -->
+		        </li>
+		        <li class="ui-body ui-body-b">		            
+		            <button type="submit" id="botonRegistro" class="ui-btn ui-corner-all ui-btn-a ui-icon-check ui-btn-icon-right">Registrarme</button>	
+		        </li>
+		    </ul>
+	</div><!-- /Content -->
+</div><!-- Page Options -->
+
+<!-- Page login -->
+<div data-role="page" id="login-page" data-title="Login" data-url="identificacion" style="height: 100%">
+	<div data-role="header" data-tap-toggle="false" class="">
+		<h1>Tu cuenta</h1>
+		<a href="#" data-rel="back" data-icon="arrow-l" data-iconpos="notext" data-shadow="false" data-icon-shadow="false">Volver</a>
+	</div><!-- /header -->
+	<div role="main" class="ui-content content-small">
+		<button id="btn-fb" class="ui-btn">Entrar con Facebook</button>
+		<hr>
+		<form>
+		    <ul data-role="listview" data-inset="true">
+		        <li class="ui-field-contain">
+		        <div class="ui-grid-a">
+				    <div class="ui-block-a" style="width: 8%;" ><img width="36px" height="36px" style="margin-top: 1em"  src="img/usr.png" ></div>
+				    <div class="ui-block-b" style="width: 92%;"><div class="ui-bar " ><input type="text" name="rut" id="rut" value="" data-clear-btn="true" placeholder="RUT"></div></div>
+				</div><!-- /grid-a -->
+		            
+		        </li>
+		        <li class="ui-field-contain">
+		        <div class="ui-grid-a">
+				    <div class="ui-block-a" style="width: 8%;" ><img width="36px" height="36px" style="margin-top: 1em"  src="img/pass.png" ></div>
+				    <div class="ui-block-b" style="width: 92%;"><div class="ui-bar " ><input type="password" name="pass" id="pass" value="" data-clear-btn="true" placeholder="Contraseña"></div></div>
+				</div><!-- /grid-a -->
+		        </li>
+		        <li class="ui-body ui-body-b">		            
+		            <button type="submit" class="ui-btn ui-corner-all ui-btn-a ui-icon-check ui-btn-icon-right" id="botonLogin">Iniciar sesion</button>		            
+		        </li>
+		    </ul>
+		</form>
+	</div><!-- /Content -->
+</div><!-- Page login -->
+<script src="js/login.js"></script>
+</body>
+</html>
